@@ -19,7 +19,7 @@ class TestDisplayManager(unittest.TestCase):
         mock_run.return_value = (0, "Success", "")
         result = self.manager.create_virtual_display("path/to/driver.exe")
         self.assertTrue(result)
-        mock_run.assert_called_with('"path/to/driver.exe" add')
+        mock_run.assert_called_with(['path/to/driver.exe', 'add'])
 
     @patch('src.display_manager.run_command')
     def test_create_virtual_display_failure(self, mock_run):

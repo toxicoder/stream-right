@@ -12,7 +12,7 @@ class TestUtils(unittest.TestCase):
         mock_result.stderr = ""
         mock_run.return_value = mock_result
 
-        code, stdout, stderr = utils.run_command("echo hello")
+        code, stdout, stderr = utils.run_command(["echo", "hello"])
 
         self.assertEqual(code, 0)
         self.assertEqual(stdout, "output")
