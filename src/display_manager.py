@@ -42,7 +42,7 @@ class DisplayManager:
 
         # Note: Actual arguments depend on the specific driver tool being used.
         # This is a placeholder based on TDD description.
-        cmd = f'"{driver_exe_path}" add'
+        cmd = [driver_exe_path, "add"]
         code, stdout, stderr = run_command(cmd)
         if code == 0:
             logging.info("Virtual display created successfully.")

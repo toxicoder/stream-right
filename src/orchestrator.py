@@ -6,10 +6,10 @@ import time
 
 from .display_manager import DisplayManager
 from .gpu_manager import GPUManager
-from .utils import run_command
+from .utils import run_command, setup_logging
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+setup_logging()
 
 class Orchestrator:
     """
@@ -21,6 +21,13 @@ class Orchestrator:
         # Default path to Sunshine (could be configurable)
         self.sunshine_path = r"C:\Program Files\Sunshine\Sunshine.exe"
         self.driver_tool_path = r"C:\Path\To\VirtualDriverControl.exe"
+
+        # Check if paths exist
+        if not os.path.exists(self.sunshine_path):
+             logging.warning(f"Sunshine executable not found at: {self.sunshine_path}")
+
+        if not os.path.exists(self.driver_tool_path):
+             logging.warning(f"Driver tool not found at: {self.driver_tool_path}")
 
     def start(self, client_res):
         """
