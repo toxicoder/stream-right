@@ -1,0 +1,41 @@
+import json
+import os
+import logging
+
+class Config:
+    DEFAULTS = {
+        "sunshine_path": r"C:\Program Files\Sunshine\Sunshine.exe",
+        "driver_tool_path": r"C:\Path\To\VirtualDriverControl.exe"
+    }
+
+    def __init__(self, config_path="config/settings.json"):
+        self.config = self.DEFAULTS.copy()
+
+        # Determine the absolute path for the config file
+        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        self.config_path = os.path.join(base_dir, config_path)
+
+        self.load_from_file()
+        self.load_from_env()
+
+    def load_from_file(self):
+        if os.path.exists(self.config_path):
+            try:
+                with open(self.config_path, 'r') as f:
+                    data = json.load(f)
+                    if data:
+                        self.config.update(data)
+            except Exception as e:
+                logging.warning(f"Failed to load config file: {e}")
+        else:
+            logging.info(f"Config file not found at {self.config_path}, using defaults.")
+
+    def load_from_env(self):
+        # Override with environment variables if present
+        if os.environ.get("SUNSHINE_PATH"):
+            self.config["sunshine_path"] = os.environ.get("SUNSHINE_PATH")
+        if os.environ.get("DRIVER_TOOL_PATH"):
+            self.config["driver_tool_path"] = os.environ.get("DRIVER_TOOL_PATH")
+
+    def get(self, key):
+        return self.config.get(key)
