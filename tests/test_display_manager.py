@@ -14,11 +14,27 @@ class TestDisplayManager(unittest.TestCase):
     def setUp(self):
         self.manager = DisplayManager()
 
+    @patch('src.display_manager.win32api')
     @patch('src.display_manager.run_command')
-    def test_create_virtual_display_success(self, mock_run):
+    def test_create_virtual_display_success(self, mock_run, mock_api):
         mock_run.return_value = (0, "Success", "")
+        # Initial call returns 1, second call returns 2 (verified created)
+        mock_api.GetSystemMetrics.side_effect = [1, 2]
+
         result = self.manager.create_virtual_display("path/to/driver.exe")
         self.assertTrue(result)
+        mock_run.assert_called_with(['path/to/driver.exe', 'add'])
+        self.assertEqual(mock_api.GetSystemMetrics.call_count, 2)
+
+    @patch('src.display_manager.win32api')
+    @patch('src.display_manager.run_command')
+    def test_create_virtual_display_verification_fail(self, mock_run, mock_api):
+        mock_run.return_value = (0, "Success", "")
+        # Initial call returns 1, second call returns 1 (no new monitor)
+        mock_api.GetSystemMetrics.side_effect = [1, 1]
+
+        result = self.manager.create_virtual_display("path/to/driver.exe")
+        self.assertFalse(result)
         mock_run.assert_called_with(['path/to/driver.exe', 'add'])
 
     @patch('src.display_manager.run_command')
@@ -71,6 +87,28 @@ class TestDisplayManager(unittest.TestCase):
         result = self.manager.toggle_physical_display(enable=True)
         args = mock_ctypes.windll.user32.SendMessageW.call_args[0]
         self.assertEqual(args[3], -1) # monitor_on = -1
+
+    @patch('src.display_manager.ctypes')
+    def test_toggle_physical_display_retry(self, mock_ctypes):
+        # Mocking SendMessageW to fail twice then succeed
+        mock_ctypes.windll.user32.SendMessageW.side_effect = [Exception("Fail"), Exception("Fail"), 0]
+
+        with patch('time.sleep', return_value=None): # skip sleep
+            result = self.manager.toggle_physical_display(enable=False)
+
+        self.assertTrue(result)
+        self.assertEqual(mock_ctypes.windll.user32.SendMessageW.call_count, 3)
+
+    @patch('src.display_manager.ctypes')
+    def test_toggle_physical_display_fail_all(self, mock_ctypes):
+        # Mocking SendMessageW to fail always
+        mock_ctypes.windll.user32.SendMessageW.side_effect = Exception("Fail")
+
+        with patch('time.sleep', return_value=None): # skip sleep
+            result = self.manager.toggle_physical_display(enable=False)
+
+        self.assertFalse(result)
+        self.assertEqual(mock_ctypes.windll.user32.SendMessageW.call_count, 3)
 
 if __name__ == '__main__':
     unittest.main()

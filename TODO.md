@@ -7,8 +7,8 @@
 - [x] **Error Handling**: Add verification checks for external tools (Sunshine, Virtual Driver) before attempting to use them.
 
 ## Medium Priority
-- [ ] **Display Manager**: Improve `create_virtual_display` to verify if the display was actually created.
-- [ ] **Display Manager**: Improve `toggle_physical_display` reliability (consider retry logic or alternative APIs).
+- [x] **Display Manager**: Improve `create_virtual_display` to verify if the display was actually created.
+- [x] **Display Manager**: Improve `toggle_physical_display` reliability (consider retry logic or alternative APIs).
 - [ ] **GPU Manager**: Add permission checks for Registry modifications or handle failures more gracefully.
 - [ ] **Installation**: Implement the `install` command in `orchestrator.py` to automate dependency setup.
 
