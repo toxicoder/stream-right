@@ -7,6 +7,7 @@ import time
 from .display_manager import DisplayManager
 from .gpu_manager import GPUManager
 from .utils import run_command, setup_logging
+from .config import load_config
 
 # Configure logging
 setup_logging()
@@ -18,9 +19,11 @@ class Orchestrator:
     def __init__(self):
         self.display_manager = DisplayManager()
         self.gpu_manager = GPUManager()
-        # Default path to Sunshine (could be configurable)
-        self.sunshine_path = r"C:\Program Files\Sunshine\Sunshine.exe"
-        self.driver_tool_path = r"C:\Path\To\VirtualDriverControl.exe"
+
+        # Load configuration
+        self.config = load_config()
+        self.sunshine_path = self.config.get("sunshine_path")
+        self.driver_tool_path = self.config.get("driver_tool_path")
 
         # Check if paths exist
         if not os.path.exists(self.sunshine_path):

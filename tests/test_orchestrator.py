@@ -12,6 +12,21 @@ from src.orchestrator import Orchestrator
 
 class TestOrchestrator(unittest.TestCase):
     def setUp(self):
+        # Mock load_config
+        self.config_patcher = patch('src.orchestrator.load_config')
+        self.mock_load_config = self.config_patcher.start()
+        self.mock_load_config.return_value = {
+            "sunshine_path": r"C:\Mock\Sunshine.exe",
+            "driver_tool_path": r"C:\Mock\Driver.exe"
+        }
+        self.addCleanup(self.config_patcher.stop)
+
+        # Mock os.path.exists to prevent file checks from failing
+        self.path_exists_patcher = patch('os.path.exists')
+        self.mock_path_exists = self.path_exists_patcher.start()
+        self.mock_path_exists.return_value = True
+        self.addCleanup(self.path_exists_patcher.stop)
+
         self.orchestrator = Orchestrator()
 
     @patch('src.orchestrator.DisplayManager')
