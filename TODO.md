@@ -1,7 +1,7 @@
 # Fixes and Improvements
 
 ## High Priority
-- [ ] **Configuration Management**: Move hardcoded paths (e.g., `sunshine_path`, `driver_tool_path`) to a configuration file or environment variables.
+- [x] **Configuration Management**: Move hardcoded paths (e.g., `sunshine_path`, `driver_tool_path`) to a configuration file or environment variables.
 - [x] **Logging**: Centralize logging configuration to avoid multiple `basicConfig` calls and inconsistent formats.
 - [x] **Security**: Remove `shell=True` in `utils.run_command` to prevent potential shell injection vulnerabilities.
 - [x] **Error Handling**: Add verification checks for external tools (Sunshine, Virtual Driver) before attempting to use them.

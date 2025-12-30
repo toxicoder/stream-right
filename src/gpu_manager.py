@@ -37,6 +37,12 @@ class GPUManager:
             winreg.CloseKey(key)
             logging.info(f"Set high performance GPU preference for {process_path}")
             return True
+        except OSError as e:
+            if e.winerror == 5: # Access Denied
+                logging.error(f"Permission denied while accessing registry. Please run as Administrator. Error: {e}")
+            else:
+                logging.error(f"OSError accessing registry: {e}")
+            return False
         except Exception as e:
             logging.error(f"Failed to set GPU preference: {e}")
             return False

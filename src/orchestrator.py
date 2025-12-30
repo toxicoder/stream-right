@@ -8,6 +8,7 @@ from .display_manager import DisplayManager
 from .gpu_manager import GPUManager
 from .utils import run_command, setup_logging
 from .config import Config
+from .installer import download_file, extract_zip
 
 # Configure logging
 setup_logging()
@@ -85,8 +86,38 @@ class Orchestrator:
         Installs necessary dependencies.
         """
         logging.info("Installing dependencies...")
-        # Logic to download/install drivers would go here.
-        logging.info("Dependencies installed (simulated).")
+
+        # Define URL and paths
+        driver_url = self.config.get("virtual_display_driver_url")
+        deps_path = self.config.get("deps_path")
+
+        # Resolve absolute path for deps
+        if not os.path.isabs(deps_path):
+             base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+             deps_dir = os.path.join(base_dir, deps_path)
+        else:
+             deps_dir = deps_path
+
+        zip_path = os.path.join(deps_dir, "Virtual-Display-Driver.zip")
+
+        if not os.path.exists(deps_dir):
+            os.makedirs(deps_dir)
+
+        # Download
+        if download_file(driver_url, zip_path):
+            # Extract
+            if extract_zip(zip_path, deps_dir):
+                logging.info(f"Dependencies installed to {deps_dir}")
+                logging.info("Please manually install the driver using the extracted files if necessary (e.g. run install_cert.bat and then add the device via Device Manager).")
+                # Clean up zip
+                try:
+                    os.remove(zip_path)
+                except Exception as e:
+                    logging.warning(f"Could not remove zip file: {e}")
+            else:
+                logging.error("Failed to extract dependencies.")
+        else:
+            logging.error("Failed to download dependencies.")
 
 def main():
     parser = argparse.ArgumentParser(description="Easy Game Streaming Orchestrator")

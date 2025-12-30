@@ -5,7 +5,9 @@ import logging
 class Config:
     DEFAULTS = {
         "sunshine_path": r"C:\Program Files\Sunshine\Sunshine.exe",
-        "driver_tool_path": r"C:\Path\To\VirtualDriverControl.exe"
+        "driver_tool_path": r"C:\Path\To\VirtualDriverControl.exe",
+        "virtual_display_driver_url": "https://github.com/itsmikethetech/Virtual-Display-Driver/releases/download/23.12.2/Virtual-Display-Driver_23.12.2.zip",
+        "deps_path": "deps"
     }
 
     def __init__(self, config_path="config/settings.json"):
@@ -36,6 +38,10 @@ class Config:
             self.config["sunshine_path"] = os.environ.get("SUNSHINE_PATH")
         if os.environ.get("DRIVER_TOOL_PATH"):
             self.config["driver_tool_path"] = os.environ.get("DRIVER_TOOL_PATH")
+        if os.environ.get("VIRTUAL_DISPLAY_DRIVER_URL"):
+            self.config["virtual_display_driver_url"] = os.environ.get("VIRTUAL_DISPLAY_DRIVER_URL")
+        if os.environ.get("DEPS_PATH"):
+            self.config["deps_path"] = os.environ.get("DEPS_PATH")
 
     def get(self, key):
         return self.config.get(key)
