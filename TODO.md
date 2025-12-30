@@ -19,3 +19,4 @@
 
 ## Maintenance
 - [x] **Docstrings**: Fix invalid escape sequences in docstrings.
+- [x] **Dependencies**: Add missing `requests` dependency to `setup.py`.
