@@ -44,5 +44,27 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(stdout, "")
         self.assertIn("Crash", stderr)
 
+    @patch('subprocess.run')
+    def test_run_command_shell(self, mock_run):
+        # Mock setup
+        mock_result = MagicMock()
+        mock_result.returncode = 0
+        mock_result.stdout = "output"
+        mock_result.stderr = ""
+        mock_run.return_value = mock_result
+
+        code, stdout, stderr = utils.run_command("echo hello", shell=True)
+
+        self.assertEqual(code, 0)
+        self.assertEqual(stdout, "output")
+        self.assertEqual(stderr, "")
+        mock_run.assert_called_with(
+            "echo hello",
+            shell=True,
+            capture_output=True,
+            text=True,
+            check=False
+        )
+
 if __name__ == '__main__':
     unittest.main()

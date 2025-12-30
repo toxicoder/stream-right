@@ -1,5 +1,6 @@
 import logging
 import time
+
 from .utils import run_command
 
 # Handle Windows-specific imports
@@ -35,6 +36,13 @@ class DisplayManager:
         """
         Creates a virtual monitor using the provided driver executable.
         Assumes the driver executable has an 'add' command.
+
+        Args:
+            driver_exe_path (str): The path to the Virtual Display Driver executable.
+            index (int, optional): The index for the virtual display (default is 0).
+
+        Returns:
+            bool: True if the display was created and verified (or if verification was skipped but command succeeded), False otherwise.
         """
         logging.info("Creating virtual display...")
 
@@ -88,6 +96,14 @@ class DisplayManager:
         """
         Sets the resolution of the display.
         If device_name is None, it tries to find the virtual display or primary.
+
+        Args:
+            width (int): The target width.
+            height (int): The target height.
+            device_name (str, optional): The name of the display device (e.g., r"\\.\DISPLAY1"). Defaults to None.
+
+        Returns:
+            bool: True if the resolution was set successfully, False otherwise.
         """
         if not win32api:
             logging.error("win32api not available.")
@@ -128,6 +144,12 @@ class DisplayManager:
     def toggle_physical_display(self, enable: bool):
         """
         Turns the physical display on or off.
+
+        Args:
+            enable (bool): True to turn the display on, False to turn it off.
+
+        Returns:
+            bool: True if the command was sent successfully (after retries), False otherwise.
         """
         if not ctypes:
             logging.error("ctypes not available.")

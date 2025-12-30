@@ -13,5 +13,5 @@
 - [x] Installation: Implement the `install` command in `orchestrator.py` to automate dependency setup.
 
 ## Low Priority
-- [ ] **Code Style**: Ensure consistent docstrings and import sorting.
-- [ ] **Testing**: Add more unit tests for edge cases and failure scenarios.
+- [x] **Code Style**: Ensure consistent docstrings and import sorting.
+- [x] **Testing**: Add more unit tests for edge cases and failure scenarios.

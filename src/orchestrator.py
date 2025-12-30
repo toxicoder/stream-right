@@ -1,14 +1,14 @@
 import argparse
-import sys
 import logging
 import os
+import sys
 import time
 
+from .config import Config
 from .display_manager import DisplayManager
 from .gpu_manager import GPUManager
-from .utils import run_command, setup_logging
-from .config import Config
 from .installer import download_file, extract_zip, install_driver
+from .utils import setup_logging
 
 # Configure logging
 setup_logging()
@@ -35,6 +35,9 @@ class Orchestrator:
     def start(self, client_res):
         """
         Starts the streaming setup.
+
+        Args:
+            client_res (str): The desired resolution in the format "WIDTHxHEIGHT" (e.g., "1920x1080").
         """
         logging.info(f"Starting setup with resolution: {client_res}")
 
@@ -69,6 +72,8 @@ class Orchestrator:
     def stop(self):
         """
         Stops the streaming setup and reverts changes.
+
+        This involves waking up the physical display and potentially removing virtual displays.
         """
         logging.info("Stopping setup...")
 
@@ -84,6 +89,9 @@ class Orchestrator:
     def install(self):
         """
         Installs necessary dependencies.
+
+        Downloads and installs the Virtual Display Driver and potentially other tools.
+        Uses configuration to determine URLs and paths.
         """
         logging.info("Installing dependencies...")
 
