@@ -36,13 +36,39 @@ class TestGPUManager(unittest.TestCase):
 
     @patch('src.gpu_manager.winreg')
     def test_force_high_performance_permission_error(self, mock_winreg):
-        # Create an OSError with winerror=5 (Access Denied)
+        # Create an OSError with winerror=5 (Access Denied) for check_registry_access
         error = OSError()
         error.winerror = 5
-        mock_winreg.CreateKey.side_effect = error
+        mock_winreg.OpenKey.side_effect = error
 
         result = self.manager.force_high_performance("C:\\App.exe")
         self.assertFalse(result)
+        # Verify OpenKey was called to check permissions
+        mock_winreg.OpenKey.assert_called()
+        # Verify CreateKey was NOT called because permission check failed
+        mock_winreg.CreateKey.assert_not_called()
+
+    @patch('src.gpu_manager.winreg')
+    def test_check_registry_access_success(self, mock_winreg):
+        result = self.manager.check_registry_access()
+        self.assertTrue(result)
+        mock_winreg.OpenKey.assert_called_with(mock_winreg.HKEY_CURRENT_USER, r"Software\Microsoft\DirectX\UserGpuPreferences", 0, mock_winreg.KEY_WRITE)
+
+    @patch('src.gpu_manager.winreg')
+    def test_check_registry_access_denied(self, mock_winreg):
+        error = OSError()
+        error.winerror = 5
+        mock_winreg.OpenKey.side_effect = error
+        result = self.manager.check_registry_access()
+        self.assertFalse(result)
+
+    @patch('src.gpu_manager.winreg')
+    def test_check_registry_access_file_not_found(self, mock_winreg):
+        error = OSError()
+        error.winerror = 2
+        mock_winreg.OpenKey.side_effect = error
+        result = self.manager.check_registry_access()
+        self.assertTrue(result)
 
 if __name__ == '__main__':
     unittest.main()

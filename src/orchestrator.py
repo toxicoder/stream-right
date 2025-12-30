@@ -8,7 +8,7 @@ from .display_manager import DisplayManager
 from .gpu_manager import GPUManager
 from .utils import run_command, setup_logging
 from .config import Config
-from .installer import download_file, extract_zip
+from .installer import download_file, extract_zip, install_driver
 
 # Configure logging
 setup_logging()
@@ -107,8 +107,17 @@ class Orchestrator:
         if download_file(driver_url, zip_path):
             # Extract
             if extract_zip(zip_path, deps_dir):
-                logging.info(f"Dependencies installed to {deps_dir}")
-                logging.info("Please manually install the driver using the extracted files if necessary (e.g. run install_cert.bat and then add the device via Device Manager).")
+                logging.info(f"Dependencies extracted to {deps_dir}")
+
+                # Attempt automated installation
+                logging.info("Attempting automated driver installation...")
+                if install_driver(deps_dir):
+                     logging.info("Automated installation steps finished.")
+                else:
+                     logging.info("Manual installation might be required. Please check the extracted files.")
+
+                logging.info("If the driver is not working, please manually install using the extracted files (e.g. run install_cert.bat and add device via Device Manager).")
+
                 # Clean up zip
                 try:
                     os.remove(zip_path)

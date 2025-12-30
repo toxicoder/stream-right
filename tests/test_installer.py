@@ -45,5 +45,45 @@ class TestInstaller(unittest.TestCase):
 
         self.assertFalse(result)
 
+    @patch('src.installer.subprocess.run')
+    @patch('src.installer.os.walk')
+    def test_install_driver_success(self, mock_walk, mock_run):
+        # Mock os.walk to return a bat file and an inf file
+        mock_walk.return_value = [
+            ("root", [], ["install_cert.bat", "driver.inf"])
+        ]
+
+        from src.installer import install_driver
+        result = install_driver("deps_path")
+
+        self.assertTrue(result)
+        # Check if subprocess.run was called for both
+        # We can't easily check exact args because path is constructed with os.path.join
+        self.assertEqual(mock_run.call_count, 2)
+
+        # Check calls.
+        # First call should be cert install
+        args1, _ = mock_run.call_args_list[0]
+        self.assertEqual(args1[0][:2], ["cmd.exe", "/c"])
+        self.assertTrue(args1[0][2].endswith("install_cert.bat"))
+
+        # Second call should be pnputil
+        args2, _ = mock_run.call_args_list[1]
+        self.assertEqual(args2[0][:2], ["pnputil", "/add-driver"])
+        self.assertTrue(args2[0][2].endswith("driver.inf"))
+
+    @patch('src.installer.subprocess.run')
+    @patch('src.installer.os.walk')
+    def test_install_driver_no_files(self, mock_walk, mock_run):
+        mock_walk.return_value = [
+            ("root", [], ["readme.txt"])
+        ]
+
+        from src.installer import install_driver
+        result = install_driver("deps_path")
+
+        self.assertFalse(result)
+        mock_run.assert_not_called()
+
 if __name__ == '__main__':
     unittest.main()
