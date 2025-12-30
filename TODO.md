@@ -1,22 +1,16 @@
-# Fixes and Improvements
+# Plans and Improvements
 
 ## High Priority
-- [x] **Configuration Management**: Move hardcoded paths (e.g., `sunshine_path`, `driver_tool_path`) to a configuration file or environment variables.
-- [x] **Logging**: Centralize logging configuration to avoid multiple `basicConfig` calls and inconsistent formats.
-- [x] **Security**: Remove `shell=True` in `utils.run_command` to prevent potential shell injection vulnerabilities.
-- [x] **Error Handling**: Add verification checks for external tools (Sunshine, Virtual Driver) before attempting to use them.
-- [x] **Error Handling**: Abort setup process if virtual display creation or resolution change fails in `Orchestrator`.
+- [ ] **Display Manager**: Implement `remove_virtual_display` method in `src/display_manager.py` to allow removing the virtual display.
+- [ ] **Orchestrator**: Update `stop` method in `src/orchestrator.py` to call `remove_virtual_display` to clean up resources.
+- [ ] **Orchestrator/Display Manager**: Improve logic to correctly identify and target the virtual display when setting resolution, instead of potentially changing the primary display.
 
 ## Medium Priority
-- [x] **Display Manager**: Improve `create_virtual_display` to verify if the display was actually created.
-- [x] **Display Manager**: Improve `toggle_physical_display` reliability (consider retry logic or alternative APIs).
-- [x] GPU Manager: Add permission checks for Registry modifications or handle failures more gracefully.
-- [x] Installation: Implement the `install` command in `orchestrator.py` to automate dependency setup.
+- [ ] **GPU Manager**: Implement a method to remove the GPU preference registry key (e.g., `revert_high_performance`) and optionally call it in `stop` or a cleanup command.
+- [ ] **Installer**: Add checksum verification (SHA256) for downloaded driver files to ensure integrity.
+- [ ] **Config**: Add validation for configuration values (e.g., check if paths are valid/absolute) within `Config` class.
 
 ## Low Priority
-- [x] **Code Style**: Ensure consistent docstrings and import sorting.
-- [x] **Testing**: Add more unit tests for edge cases and failure scenarios.
-
-## Maintenance
-- [x] **Docstrings**: Fix invalid escape sequences in docstrings.
-- [x] **Dependencies**: Add missing `requests` dependency to `setup.py`.
+- [ ] **Refactoring**: Migrate from `os.path` to `pathlib` for file path manipulations.
+- [ ] **Testing**: Add more comprehensive tests for `DisplayManager` (mocking Windows APIs).
+- [ ] **Logging**: Improve log messages to include more context (e.g., which device is being operated on).
