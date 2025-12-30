@@ -9,8 +9,8 @@
 ## Medium Priority
 - [x] **Display Manager**: Improve `create_virtual_display` to verify if the display was actually created.
 - [x] **Display Manager**: Improve `toggle_physical_display` reliability (consider retry logic or alternative APIs).
-- [ ] **GPU Manager**: Add permission checks for Registry modifications or handle failures more gracefully.
-- [ ] **Installation**: Implement the `install` command in `orchestrator.py` to automate dependency setup.
+- [x] GPU Manager: Add permission checks for Registry modifications or handle failures more gracefully.
+- [x] Installation: Implement the `install` command in `orchestrator.py` to automate dependency setup.
 
 ## Low Priority
 - [ ] **Code Style**: Ensure consistent docstrings and import sorting.
