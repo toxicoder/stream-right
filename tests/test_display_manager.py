@@ -71,6 +71,31 @@ class TestDisplayManager(unittest.TestCase):
         # Should be called twice: once for test, once for real
         self.assertEqual(mock_api.ChangeDisplaySettingsEx.call_count, 2)
 
+    @patch('src.display_manager.win32api')
+    @patch('src.display_manager.win32con')
+    def test_set_resolution_failure(self, mock_con, mock_api):
+        mock_con.ENM_CURRENT_SETTINGS = -1
+        mock_con.CDS_TEST = 2
+        mock_con.DISP_CHANGE_SUCCESSFUL = 0
+
+        # Mock device
+        mock_device = MagicMock()
+        mock_device.DeviceName = "DISPLAY1"
+        mock_api.EnumDisplayDevices.return_value = mock_device
+
+        # Mock DevMode
+        mock_devmode = MagicMock()
+        mock_api.EnumDisplaySettings.return_value = mock_devmode
+
+        # Fail the test call
+        mock_api.ChangeDisplaySettingsEx.return_value = 1 # Failed
+
+        result = self.manager.set_resolution(1920, 1080)
+
+        self.assertFalse(result)
+        # Should be called once (failed at test)
+        self.assertEqual(mock_api.ChangeDisplaySettingsEx.call_count, 1)
+
     @patch('src.display_manager.ctypes')
     def test_toggle_physical_display(self, mock_ctypes):
         # Mocking SendMessageW

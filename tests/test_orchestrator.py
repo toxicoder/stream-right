@@ -60,5 +60,24 @@ class TestOrchestrator(unittest.TestCase):
         mock_extract.assert_called()
         mock_install_driver.assert_called()
 
+    @patch('src.orchestrator.download_file')
+    def test_install_download_fail(self, mock_download):
+        mock_download.return_value = False
+
+        self.orchestrator.install()
+
+        mock_download.assert_called()
+
+    @patch('src.orchestrator.download_file')
+    @patch('src.orchestrator.extract_zip')
+    def test_install_extract_fail(self, mock_extract, mock_download):
+        mock_download.return_value = True
+        mock_extract.return_value = False
+
+        self.orchestrator.install()
+
+        mock_download.assert_called()
+        mock_extract.assert_called()
+
 if __name__ == '__main__':
     unittest.main()

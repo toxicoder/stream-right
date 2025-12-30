@@ -1,12 +1,20 @@
-import os
-import requests
-import zipfile
 import logging
+import os
 import subprocess
+import zipfile
+
+import requests
 
 def download_file(url, dest):
     """
     Downloads a file from a URL to a destination path.
+
+    Args:
+        url (str): The URL to download from.
+        dest (str): The file path where the downloaded content will be saved.
+
+    Returns:
+        bool: True if download was successful, False otherwise.
     """
     try:
         logging.info(f"Downloading {url} to {dest}...")
@@ -24,6 +32,13 @@ def download_file(url, dest):
 def extract_zip(zip_path, extract_to):
     """
     Extracts a ZIP file to a destination directory.
+
+    Args:
+        zip_path (str): The path to the ZIP file.
+        extract_to (str): The directory to extract contents to.
+
+    Returns:
+        bool: True if extraction was successful, False otherwise.
     """
     try:
         logging.info(f"Extracting {zip_path} to {extract_to}...")
@@ -39,6 +54,12 @@ def install_driver(deps_path):
     """
     Installs the driver from the dependencies folder.
     Searches for .bat files (certificates) and .inf files (drivers).
+
+    Args:
+        deps_path (str): The path containing the driver files.
+
+    Returns:
+        bool: True if installation (certificate or driver) was attempted/successful, False if no installable files were found.
     """
     logging.info(f"Searching for driver files in {deps_path}...")
 

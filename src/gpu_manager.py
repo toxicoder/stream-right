@@ -15,6 +15,9 @@ class GPUManager:
     def check_registry_access(self):
         """
         Checks if the process has write access to the registry key.
+
+        Returns:
+            bool: True if write access is available (or if exception handling suggests it might be), False if access is explicitly denied.
         """
         if not winreg:
             return False
@@ -37,6 +40,12 @@ class GPUManager:
         """
         Forces the specified process to use the dGPU via Windows Registry.
         This targets the 'UserGpuPreferences' registry key on Windows 10/11.
+
+        Args:
+            process_path (str): The full path to the executable to configure.
+
+        Returns:
+            bool: True if the registry value was set successfully, False otherwise.
         """
         if not winreg:
             logging.error("Cannot modify registry: winreg module missing.")
