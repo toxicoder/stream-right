@@ -55,17 +55,22 @@ class Orchestrator:
         # 2. Create/Prepare Virtual Display
         logging.info("Preparing virtual display...")
         # In a real run, we might verify if it exists first.
-        self.display_manager.create_virtual_display(self.driver_tool_path)
+        if not self.display_manager.create_virtual_display(self.driver_tool_path):
+            logging.error("Failed to create virtual display. Aborting setup.")
+            return
 
         # 3. Set Resolution
         logging.info("Setting resolution...")
         # Note: We'd need the specific device name for the virtual display in reality.
         # Passing None to target primary/default for demonstration/fallback.
-        self.display_manager.set_resolution(width, height)
+        if not self.display_manager.set_resolution(width, height):
+            logging.error("Failed to set resolution. Aborting setup.")
+            return
 
         # 4. Turn off physical display
         logging.info("Turning off physical display...")
-        self.display_manager.toggle_physical_display(enable=False)
+        if not self.display_manager.toggle_physical_display(enable=False):
+            logging.warning("Failed to turn off physical display.")
 
         logging.info("Setup complete. Ready for streaming.")
 
@@ -79,7 +84,8 @@ class Orchestrator:
 
         # 1. Re-enable physical display
         logging.info("Waking up physical display...")
-        self.display_manager.toggle_physical_display(enable=True)
+        if not self.display_manager.toggle_physical_display(enable=True):
+             logging.warning("Failed to turn on physical display.")
 
         # 2. Revert other changes if necessary (e.g., remove virtual display)
         # self.display_manager.remove_virtual_display(...)

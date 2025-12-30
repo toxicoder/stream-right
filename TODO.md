@@ -5,6 +5,7 @@
 - [x] **Logging**: Centralize logging configuration to avoid multiple `basicConfig` calls and inconsistent formats.
 - [x] **Security**: Remove `shell=True` in `utils.run_command` to prevent potential shell injection vulnerabilities.
 - [x] **Error Handling**: Add verification checks for external tools (Sunshine, Virtual Driver) before attempting to use them.
+- [x] **Error Handling**: Abort setup process if virtual display creation or resolution change fails in `Orchestrator`.
 
 ## Medium Priority
 - [x] **Display Manager**: Improve `create_virtual_display` to verify if the display was actually created.
