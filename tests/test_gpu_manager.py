@@ -34,5 +34,15 @@ class TestGPUManager(unittest.TestCase):
 
         self.assertFalse(result)
 
+    @patch('src.gpu_manager.winreg')
+    def test_force_high_performance_permission_error(self, mock_winreg):
+        # Create an OSError with winerror=5 (Access Denied)
+        error = OSError()
+        error.winerror = 5
+        mock_winreg.CreateKey.side_effect = error
+
+        result = self.manager.force_high_performance("C:\\App.exe")
+        self.assertFalse(result)
+
 if __name__ == '__main__':
     unittest.main()
