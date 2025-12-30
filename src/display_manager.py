@@ -93,7 +93,7 @@ class DisplayManager:
         return True
 
     def set_resolution(self, width, height, device_name=None):
-        """
+        r"""
         Sets the resolution of the display.
         If device_name is None, it tries to find the virtual display or primary.
 
