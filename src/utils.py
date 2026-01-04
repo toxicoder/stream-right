@@ -1,21 +1,32 @@
-import subprocess
 import logging
+import subprocess
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+def setup_logging(level=logging.INFO):
+    """
+    Configures the logging for the application.
 
-def run_command(command):
+    Args:
+        level (int, optional): The logging level (default: logging.INFO).
+    """
+    logging.basicConfig(level=level, format='%(asctime)s - %(levelname)s - %(message)s')
+
+def run_command(command, shell=False):
     """
     Executes a shell command.
-    Returns (return_code, stdout, stderr).
+
+    Args:
+        command (list or str): The command to execute. Should be a list if shell=False.
+        shell (bool, optional): Whether to use the shell to execute the command. Defaults to False.
+
+    Returns:
+        tuple: (return_code, stdout, stderr)
     """
     try:
         logging.info(f"Running command: {command}")
-        # Using shell=True for flexibility with command strings, but requires care with input.
-        # Since this is an internal tool, we assume inputs are relatively safe or controlled.
+        # shell=True should be avoided when possible.
         result = subprocess.run(
             command,
-            shell=True,
+            shell=shell,
             capture_output=True,
             text=True,
             check=False

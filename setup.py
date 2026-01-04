@@ -9,6 +9,7 @@ setup(
     install_requires=[
         "pywin32",
         "psutil",
+        "requests",
     ],
     entry_points={
         "console_scripts": [
