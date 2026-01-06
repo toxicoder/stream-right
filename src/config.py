@@ -7,7 +7,9 @@ class Config:
         "sunshine_path": r"C:\Program Files\Sunshine\Sunshine.exe",
         "driver_tool_path": r"C:\Path\To\VirtualDriverControl.exe",
         "virtual_display_driver_url": "https://github.com/itsmikethetech/Virtual-Display-Driver/releases/download/23.12.2/Virtual-Display-Driver_23.12.2.zip",
-        "deps_path": "deps"
+        "deps_path": "deps",
+        "igdb_client_id": "",
+        "igdb_client_secret": ""
     }
 
     def __init__(self, config_path="config/settings.json"):
@@ -42,6 +44,10 @@ class Config:
             self.config["virtual_display_driver_url"] = os.environ.get("VIRTUAL_DISPLAY_DRIVER_URL")
         if os.environ.get("DEPS_PATH"):
             self.config["deps_path"] = os.environ.get("DEPS_PATH")
+        if os.environ.get("IGDB_CLIENT_ID"):
+            self.config["igdb_client_id"] = os.environ.get("IGDB_CLIENT_ID")
+        if os.environ.get("IGDB_CLIENT_SECRET"):
+            self.config["igdb_client_secret"] = os.environ.get("IGDB_CLIENT_SECRET")
 
     def get(self, key):
         return self.config.get(key)
