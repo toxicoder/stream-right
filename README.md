@@ -67,7 +67,7 @@ sequenceDiagram
 
 1. **Clone the Repository**:
    ```bash
-   git clone https://github.com/your-username/easy-game-streaming.git
+   git clone https://github.com/toxicoder/easy-game-streaming.git
    cd easy-game-streaming
    ```
 
