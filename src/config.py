@@ -7,7 +7,8 @@ class Config:
         "sunshine_path": r"C:\Program Files\Sunshine\Sunshine.exe",
         "driver_tool_path": r"C:\Path\To\VirtualDriverControl.exe",
         "virtual_display_driver_url": "https://github.com/itsmikethetech/Virtual-Display-Driver/releases/download/23.12.2/Virtual-Display-Driver_23.12.2.zip",
-        "deps_path": "deps"
+        "deps_path": "deps",
+        "driver_checksum": ""
     }
 
     def __init__(self, config_path="config/settings.json"):
