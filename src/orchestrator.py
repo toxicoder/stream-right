@@ -55,15 +55,14 @@ class Orchestrator:
         # 2. Create/Prepare Virtual Display
         logging.info("Preparing virtual display...")
         # In a real run, we might verify if it exists first.
-        if not self.display_manager.create_virtual_display(self.driver_tool_path):
-            logging.error("Failed to create virtual display. Aborting setup.")
+        virtual_display_device = self.display_manager.create_virtual_display(self.driver_tool_path)
+        if not virtual_display_device:
+            logging.error("Failed to create virtual display or identify the new device. Aborting setup.")
             return
 
         # 3. Set Resolution
         logging.info("Setting resolution...")
-        # Note: We'd need the specific device name for the virtual display in reality.
-        # Passing None to target primary/default for demonstration/fallback.
-        if not self.display_manager.set_resolution(width, height):
+        if not self.display_manager.set_resolution(width, height, device_name=virtual_display_device):
             logging.error("Failed to set resolution. Aborting setup.")
             return
 
@@ -88,7 +87,7 @@ class Orchestrator:
              logging.warning("Failed to turn on physical display.")
 
         # 2. Revert other changes if necessary (e.g., remove virtual display)
-        # self.display_manager.remove_virtual_display(...)
+        self.display_manager.remove_virtual_display(self.driver_tool_path)
 
         logging.info("Teardown complete.")
 
@@ -104,6 +103,7 @@ class Orchestrator:
         # Define URL and paths
         driver_url = self.config.get("virtual_display_driver_url")
         deps_path = self.config.get("deps_path")
+        driver_checksum = self.config.get("driver_checksum")
 
         # Resolve absolute path for deps
         if not os.path.isabs(deps_path):
@@ -118,7 +118,7 @@ class Orchestrator:
             os.makedirs(deps_dir)
 
         # Download
-        if download_file(driver_url, zip_path):
+        if download_file(driver_url, zip_path, checksum=driver_checksum):
             # Extract
             if extract_zip(zip_path, deps_dir):
                 logging.info(f"Dependencies extracted to {deps_dir}")

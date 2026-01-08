@@ -1,3 +1,4 @@
+import hashlib
 import logging
 import os
 import subprocess
@@ -5,16 +6,17 @@ import zipfile
 
 import requests
 
-def download_file(url, dest):
+def download_file(url, dest, checksum=None):
     """
     Downloads a file from a URL to a destination path.
 
     Args:
         url (str): The URL to download from.
         dest (str): The file path where the downloaded content will be saved.
+        checksum (str, optional): The SHA256 checksum to verify the file. Defaults to None.
 
     Returns:
-        bool: True if download was successful, False otherwise.
+        bool: True if download was successful and verified, False otherwise.
     """
     try:
         logging.info(f"Downloading {url} to {dest}...")
@@ -23,10 +25,28 @@ def download_file(url, dest):
         with open(dest, 'wb') as f:
             for chunk in response.iter_content(chunk_size=8192):
                 f.write(chunk)
+
         logging.info("Download complete.")
+
+        if checksum:
+            logging.info("Verifying checksum...")
+            sha256_hash = hashlib.sha256()
+            with open(dest, "rb") as f:
+                for byte_block in iter(lambda: f.read(4096), b""):
+                    sha256_hash.update(byte_block)
+            calculated_checksum = sha256_hash.hexdigest()
+
+            if calculated_checksum != checksum:
+                logging.error(f"Checksum verification failed. Expected: {checksum}, Calculated: {calculated_checksum}")
+                os.remove(dest)
+                return False
+            logging.info("Checksum verified successfully.")
+
         return True
     except Exception as e:
         logging.error(f"Failed to download file: {e}")
+        if os.path.exists(dest):
+            os.remove(dest)
         return False
 
 def extract_zip(zip_path, extract_to):
@@ -67,9 +87,9 @@ def install_driver(deps_path):
     driver_installed = False
 
     for root, dirs, files in os.walk(deps_path):
-        # Install Certificates (.bat)
+        # Install Certificates (install_cert.bat)
         for file in files:
-            if file.lower().endswith(".bat"):
+            if file.lower() == "install_cert.bat":
                 bat_path = os.path.join(root, file)
                 logging.info(f"Found certificate installer: {bat_path}")
                 try:

@@ -32,6 +32,21 @@ class DisplayManager:
         if not all([win32api, win32con, ctypes]):
              logging.warning("Windows APIs not found. DisplayManager functionality will be limited.")
 
+    def _get_display_devices(self):
+        """Helper to enumerate all display devices."""
+        devices = []
+        if not win32api:
+            return devices
+        i = 0
+        while True:
+            try:
+                device = win32api.EnumDisplayDevices(None, i)
+                devices.append(device.DeviceName)
+                i += 1
+            except Exception:
+                break
+        return devices
+
     def create_virtual_display(self, driver_exe_path, index=0):
         """
         Creates a virtual monitor using the provided driver executable.
@@ -42,55 +57,65 @@ class DisplayManager:
             index (int, optional): The index for the virtual display (default is 0).
 
         Returns:
-            bool: True if the display was created and verified (or if verification was skipped but command succeeded), False otherwise.
+            str: The DeviceName of the created display (e.g. \\.\DISPLAY2) if successful, None otherwise.
         """
         logging.info("Creating virtual display...")
 
-        initial_monitors = 0
-        if win32api:
-            try:
-                initial_monitors = win32api.GetSystemMetrics(SM_CMONITORS)
-                logging.info(f"Initial monitor count: {initial_monitors}")
-            except Exception as e:
-                logging.warning(f"Failed to get initial monitor count: {e}")
+        initial_devices = self._get_display_devices()
+        logging.info(f"Initial devices: {initial_devices}")
 
         # Example command: VirtualDriverControl.exe add --res=1920x1080 --hz=60
         # For simplicity, we just call 'add' here, or whatever the driver supports.
         # This implementation assumes the driver tool is at `driver_exe_path`.
-
-        # Note: Actual arguments depend on the specific driver tool being used.
-        # This is a placeholder based on TDD description.
         cmd = [driver_exe_path, "add"]
         code, stdout, stderr = run_command(cmd)
 
         if code != 0:
             logging.error(f"Failed to create virtual display: {stderr}")
-            return False
+            return None
 
-        # Verify creation
+        # Verify creation and identify new device
         if win32api:
             try:
                 # Wait briefly for the system to register the new display
                 time.sleep(1)
-                final_monitors = win32api.GetSystemMetrics(SM_CMONITORS)
-                logging.info(f"Final monitor count: {final_monitors}")
+                final_devices = self._get_display_devices()
+                logging.info(f"Final devices: {final_devices}")
 
-                if final_monitors > initial_monitors:
-                    logging.info("Virtual display verified created.")
-                    return True
-                elif final_monitors == initial_monitors:
-                    logging.warning("Virtual display creation command succeeded, but monitor count did not increase.")
-                    # We'll treat this as a failure to be safe, or just a warning?
-                    # The task asks to "verify if the display was actually created".
-                    # Returning False here enforces the verification.
-                    return False
+                new_devices = list(set(final_devices) - set(initial_devices))
+
+                if new_devices:
+                    new_device = new_devices[0]
+                    logging.info(f"Virtual display verified created: {new_device}")
+                    return new_device
+                else:
+                    logging.warning("Virtual display creation command succeeded, but no new device found.")
+                    return None
+
             except Exception as e:
-                logging.warning(f"Failed to verify monitor count: {e}")
-                # If verification fails due to API error, fall back to command success
-                return True
+                logging.warning(f"Failed to verify monitor creation: {e}")
+                # If verification fails due to API error, we can't identify the device
+                return None
 
-        logging.info("Virtual display created successfully (verification skipped).")
-        return True
+        logging.info("Virtual display created successfully (verification skipped). Returning placeholder.")
+        # Without win32api, we can't identify the device.
+        return None
+
+    def remove_virtual_display(self, driver_exe_path):
+        """
+        Removes the virtual display.
+
+        Args:
+            driver_exe_path (str): The path to the Virtual Display Driver executable.
+        """
+        logging.info("Removing virtual display...")
+        cmd = [driver_exe_path, "remove"]
+        code, stdout, stderr = run_command(cmd)
+
+        if code == 0:
+            logging.info("Virtual display removed successfully.")
+        else:
+            logging.error(f"Failed to remove virtual display: {stderr}")
 
     def set_resolution(self, width, height, device_name=None):
         r"""
