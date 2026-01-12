@@ -8,6 +8,9 @@ from .config import Config
 from .display_manager import DisplayManager
 from .gpu_manager import GPUManager
 from .installer import download_file, extract_zip, install_driver
+from .game_scanner import GameScanner
+from .metadata_provider import IGDBMetadataProvider
+from .sunshine_manager import SunshineManager
 from .utils import setup_logging
 
 # Configure logging
@@ -91,6 +94,61 @@ class Orchestrator:
 
         logging.info("Teardown complete.")
 
+    def scan_games(self):
+        """
+        Scans for games, fetches metadata from IGDB, and updates Sunshine config.
+        """
+        client_id = self.config.get("igdb_client_id")
+        client_secret = self.config.get("igdb_client_secret")
+
+        if not client_id or not client_secret:
+            logging.error("IGDB credentials not found. Please set IGDB_CLIENT_ID and IGDB_CLIENT_SECRET in environment or config.")
+            return
+
+        logging.info("Initializing game scanner...")
+        scanner = GameScanner()
+        games = scanner.scan_system()
+        logging.info(f"Found {len(games)} games.")
+
+        logging.info("Initializing metadata provider...")
+        metadata_provider = IGDBMetadataProvider(client_id, client_secret)
+        if not metadata_provider.authenticate():
+            logging.error("Failed to authenticate with IGDB. Aborting.")
+            return
+
+        logging.info("Initializing Sunshine manager...")
+        sunshine_manager = SunshineManager(self.sunshine_path)
+
+        # Create covers directory
+        covers_dir = os.path.join(os.path.dirname(sunshine_manager.config_path), "covers")
+        os.makedirs(covers_dir, exist_ok=True)
+
+        for game in games:
+            name = game["name"]
+            logging.info(f"Processing {name}...")
+
+            # Search IGDB
+            game_data = metadata_provider.search_game(name)
+            image_path = ""
+
+            if game_data:
+                cover_url = metadata_provider.get_cover_art(game_data)
+                if cover_url:
+                    # Sanitize filename
+                    safe_name = "".join([c for c in name if c.isalpha() or c.isdigit() or c==' ']).rstrip()
+                    local_cover_path = os.path.join(covers_dir, f"{safe_name}.jpg")
+
+                    if metadata_provider.download_cover_art(cover_url, local_cover_path):
+                        image_path = local_cover_path
+                        logging.info(f"Downloaded cover for {name}")
+            else:
+                logging.warning(f"No metadata found for {name}")
+
+            # Update Sunshine
+            sunshine_manager.add_game(name, game["cmd"], game["working_dir"], image_path)
+
+        logging.info("Game scan and update complete.")
+
     def install(self):
         """
         Installs necessary dependencies.
@@ -153,6 +211,8 @@ def main():
 
     install_parser = subparsers.add_parser("install", help="Install dependencies")
 
+    scan_parser = subparsers.add_parser("scan", help="Scan for games and update Sunshine")
+
     args = parser.parse_args()
 
     orchestrator = Orchestrator()
@@ -163,6 +223,8 @@ def main():
         orchestrator.stop()
     elif args.command == "install":
         orchestrator.install()
+    elif args.command == "scan":
+        orchestrator.scan_games()
     else:
         parser.print_help()
         sys.exit(1)
